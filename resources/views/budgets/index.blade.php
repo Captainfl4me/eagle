@@ -13,6 +13,7 @@
             <div class="flex justify-between items-start">
                 <a href="{{ url('/') }}" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
                 <h1 class="text-2xl font-bold text-center flex-1 text-center">My Budgets</h1>
+                <a href="{{ route('budgets.create') }}" class="mt-4 inline-block px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded">Create Budget</a>
             </div>
 
             @if ($budgets->isEmpty())

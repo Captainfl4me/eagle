@@ -128,6 +128,17 @@ class BudgetController extends Controller
         ]);
         return redirect()->route('budgets.show', $budget->id)->with('status', 'Month updated.');
     }
+
+    /**
+     * Delete a budget and its month records.
+     */
+    public function destroy(Request $request, $id)
+    {
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
+        $budget->months()->delete();
+        $budget->delete();
+        return redirect()->route('budgets.index')->with('status', 'Budget deleted successfully.');
+    }
 }
 
 

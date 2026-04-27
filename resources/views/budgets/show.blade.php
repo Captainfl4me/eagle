@@ -56,6 +56,14 @@
                     Save Month
                 </button>
             </form>
+            <!-- Delete budget button with confirmation -->
+            <form method="POST" action="{{ route('budgets.destroy', $budget) }}" onsubmit="return confirm('Are you sure you want to delete this budget and all its data?');" class="mt-4">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    Delete Budget
+                </button>
+            </form>
         </div>
     </body>
 </html>

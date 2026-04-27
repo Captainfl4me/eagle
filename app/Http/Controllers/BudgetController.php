@@ -40,4 +40,23 @@ class BudgetController extends Controller
         // Redirect to home with a simple flash message (optional)
         return redirect('/')->with('status', 'Budget created successfully.');
     }
+
+    /**
+     * Display a list of the authenticated user's budgets.
+     */
+    public function index()
+    {
+        $budgets = Budget::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get();
+        return view('budgets.index', compact('budgets'));
+    }
+
+    /**
+     * Show details for a single budget.
+     */
+    public function show($id)
+    {
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
+        return view('budgets.show', compact('budget'));
+    }
 }
+

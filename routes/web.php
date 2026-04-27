@@ -28,4 +28,6 @@ Route::middleware(['auth'])->group(function () {
     // Budget routes (protected by auth)
     Route::get('/budgets/create', [BudgetController::class, 'create'])->name('budgets.create');
     Route::post('/budgets', [BudgetController::class, 'store'])->name('budgets.store');
+    Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
+    Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
 });

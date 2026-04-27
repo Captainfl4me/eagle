@@ -37,6 +37,7 @@ Eagle is a web application to manage personal budgets. It should never become a 
 - [x] Account page to manage user account (profile page with password change)
 - [ ] Dashboard with summary of information, current (last) month information, and alerts
 - [x] Budget creation page
-- [ ] Budget details page with budget specific information
+- [x] Budget listing page
+- [x] Budget details page with budget specific information
 - [ ] Budget sharing page to invite other users
 - [ ] Month details page to view and edit a specific month's budgeted and realized amounts

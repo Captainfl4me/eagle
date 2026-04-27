@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>{{ config('app.name', 'Laravel') }} - My Budgets</title>
+        <link rel="preconnect" href="https://fonts.bunny.net">
+        <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
+    </head>
+    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+        <div class="w-full max-w-2xl space-y-8">
+            <div class="flex justify-between items-start">
+                <a href="{{ url('/') }}" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
+                <h1 class="text-2xl font-bold text-center flex-1 text-center">My Budgets</h1>
+            </div>
+
+            @if ($budgets->isEmpty())
+                <p class="text-center">You have no budgets yet. <a href="{{ route('budgets.create') }}" class="text-blue-600 hover:underline">Create one</a>.</p>
+            @else
+                <ul class="space-y-4">
+                    @foreach ($budgets as $budget)
+                        <li class="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-100">
+                            <a href="{{ route('budgets.show', $budget->id) }}" class="font-medium text-blue-600 hover:underline">
+                                {{ $budget->name }}
+                            </a>
+                            {{-- Placeholder total amount – replace with real calculation later --}}
+                            <span class="text-gray-600">${{ number_format(rand(100, 5000) + rand(0,99)/100, 2) }} <!-- TODO: replace with actual total amount --></span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    </body>
+</html>

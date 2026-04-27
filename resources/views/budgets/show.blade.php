@@ -19,7 +19,7 @@
             <div class="p-4 border rounded-lg bg-white shadow-sm">
                 <p><strong>Start month:</strong> {{ $budget->start_month->format('Y‑m') }}</p>
                 <p><strong>Start amount:</strong> ${{ number_format($budget->start_amount, 2) }}</p>
-                <p><strong>Total amount:</strong> <!-- TODO: replace with real calculation --> ${{ number_format(rand(100, 5000) + rand(0,99)/100, 2) }}</p>
+                <p><strong>Total amount:</strong> <span class="{{ $totalAmount < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format($totalAmount, 2) }}</span></p>
             </div>
 
             <!-- Month navigation -->
@@ -44,12 +44,12 @@
                 <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m-01') }}" />
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Budgeted Amount</label>
-                    <input type="number" step="0.01" name="budgeted_amount" value="{{ old('budgeted_amount', $monthRecord->budgeted_amount) }}"
+                    <input type="number" step="0.01" name="budgeted_amount" value="{{ old('budgeted_amount', optional($monthRecord)->budgeted_amount ?? '') }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
                 </div>
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Realized Amount</label>
-                    <input type="number" step="0.01" name="realized_amount" value="{{ old('realized_amount', $monthRecord->realized_amount) }}"
+                    <input type="number" step="0.01" name="realized_amount" value="{{ old('realized_amount', optional($monthRecord)->realized_amount ?? '') }}"
                            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
                 </div>
                 <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">

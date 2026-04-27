@@ -21,7 +21,7 @@ Eagle is a web application to manage personal budgets. It should never become a 
 ## Features and money management explanation
 
 - [x] Users should be able to create new accounts and use them to log into the application.
-- [ ] Users should be able to create budget with a name, a starting month and a start amount of money (initial envelope balance).
+- [x] Users can create a budget with a name, a starting month and a start amount (initial envelope balance).
 - [ ] Users should be able to update the state of a budget for a specific month (updates should only be allowed for the starting month or later). The user updates the budgeted amount and the realized amount (this is the only way to enter the realized amount as there will be no external connection).
 - [ ] One user owns the different budgets but they can be shared between users so that two or more users can view and edit budgets.
 - [ ] Budgets are updated on a monthly basis, so dates should not contain the day of the month as it does not make sense. The starting month is the first month with realized and budgeted amounts.

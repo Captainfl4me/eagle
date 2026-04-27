@@ -24,8 +24,13 @@
                             <a href="{{ route('budgets.show', $budget->id) }}" class="font-medium text-blue-600 hover:underline">
                                 {{ $budget->name }}
                             </a>
-                            {{-- Placeholder total amount – replace with real calculation later --}}
-                            <span class="text-gray-600">${{ number_format(rand(100, 5000) + rand(0,99)/100, 2) }} <!-- TODO: replace with actual total amount --></span>
+@php
+                                 $total = $budget->start_amount;
+                                 foreach ($budget->months as $m) {
+                                     $total += $m->budgeted_amount - $m->realized_amount;
+                                 }
+                             @endphp
+                             <span class="{{ $total < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format($total, 2) }}</span>
                         </li>
                     @endforeach
                 </ul>

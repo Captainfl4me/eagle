@@ -50,6 +50,7 @@ Eagle is a web application designed to help users manage their personal budgets.
 - Dynamic header showing login/register for guests and profile/logout for authenticated users
 - Consistent styling across all pages
 - Budget listing page ✅
+- Month‑level budgeting (create, edit, contiguous months, total amount with green/red coloring) ✅
 
 ### Testing ✅
 - Comprehensive unit tests for all authentication functionality:

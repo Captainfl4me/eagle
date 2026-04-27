@@ -203,7 +203,7 @@ eagle/
 
 Based on the original SPECS.md, the following features are planned for future implementation:
 
-- [ ] Budget creation and management
+- [x] Budget creation and management
 - [ ] Envelope budgeting system with monthly updates
 - [ ] Budget sharing between users
 - [ ] Dashboard with financial summaries and alerts

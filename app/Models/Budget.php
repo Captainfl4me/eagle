@@ -8,6 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Budget extends Model
 {
+    /**
+     * Get the months belonging to the budget.
+     */
+    public function months()
+    {
+        return $this->hasMany(BudgetMonth::class);
+    }
+
     use HasFactory;
 
     /**

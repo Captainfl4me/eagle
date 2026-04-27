@@ -53,10 +53,49 @@ class BudgetController extends Controller
     /**
      * Show details for a single budget.
      */
-    public function show($id)
+    public function show(Request $request, $id)
     {
         $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
-        return view('budgets.show', compact('budget'));
+        // Load months for this budget ordered by month
+        $months = $budget->months()->orderBy('month', 'asc')->get();
+        // Determine the current displayed month (default to today if within range, else start month)
+        $currentMonth = $request->query('month') ? \Carbon\Carbon::createFromFormat('Y-m', $request->query('month'))->startOfMonth() : now()->startOfMonth();
+        // Ensure not before start month
+        if ($currentMonth->lt($budget->start_month)) {
+            $currentMonth = $budget->start_month;
+        }
+        // Find or create month record for current month
+        $monthRecord = $budget->months()->firstOrCreate([
+            'month' => $currentMonth,
+        ], [
+            'budgeted_amount' => $budget->start_amount,
+            'realized_amount' => 0,
+        ]);
+
+        return view('budgets.show', compact('budget', 'months', 'currentMonth', 'monthRecord'));
+    }
+
+    /**
+     * Update budgeted and realized amounts for a specific month.
+     */
+    public function updateMonth(Request $request, $id)
+    {
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'month' => ['required', 'date_format:Y-m-d'],
+            'budgeted_amount' => ['required', 'numeric', 'min:0'],
+            'realized_amount' => ['required', 'numeric', 'min:0'],
+        ]);
+        $month = \Carbon\Carbon::parse($request->input('month'))->startOfMonth();
+        $budgetMonth = $budget->months()->firstOrCreate([
+            'month' => $month,
+        ]);
+        $budgetMonth->update([
+            'budgeted_amount' => $request->input('budgeted_amount'),
+            'realized_amount' => $request->input('realized_amount'),
+        ]);
+        return redirect()->route('budgets.show', $budget->id)->with('status', 'Month updated.');
     }
 }
+
 

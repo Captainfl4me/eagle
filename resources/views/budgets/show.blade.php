@@ -12,15 +12,50 @@
         <div class="w-full max-w-md space-y-8">
             <div class="flex justify-between items-start">
                 <a href="{{ route('budgets.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Back to Budgets</a>
-                <h1 class="text-2xl font-bold text-center flex-1 text-center">Budget Details</h1>
+                <h1 class="text-2xl font-bold text-center flex-1 text-center">{{ $budget->name }}</h1>
             </div>
 
-            <div class="p-4 border rounded-lg">
-                <p><strong>Name:</strong> {{ $budget->name }}</p>
+            <!-- Summary Card -->
+            <div class="p-4 border rounded-lg bg-white shadow-sm">
                 <p><strong>Start month:</strong> {{ $budget->start_month->format('Y‑m') }}</p>
                 <p><strong>Start amount:</strong> ${{ number_format($budget->start_amount, 2) }}</p>
                 <p><strong>Total amount:</strong> <!-- TODO: replace with real calculation --> ${{ number_format(rand(100, 5000) + rand(0,99)/100, 2) }}</p>
             </div>
+
+            <!-- Month navigation -->
+            <div class="flex items-center justify-center space-x-4 mb-4">
+                @php
+                    $prevMonth = $currentMonth->copy()->subMonth();
+                    $nextMonth = $currentMonth->copy()->addMonth();
+                    $disablePrev = $prevMonth->lt($budget->start_month);
+                @endphp
+                @if(!$disablePrev)
+                    <a href="{{ route('budgets.show', ['id' => $budget->id, 'month' => $prevMonth->format('Y-m')]) }}" class="text-xl font-bold">←</a>
+                @else
+                    <span class="text-xl text-gray-400">←</span>
+                @endif
+                <span class="font-medium">{{ $currentMonth->format('F Y') }}</span>
+                <a href="{{ route('budgets.show', ['id' => $budget->id, 'month' => $nextMonth->format('Y-m')]) }}" class="text-xl font-bold">→</a>
+            </div>
+
+            <!-- Edit form for the selected month -->
+            <form method="POST" action="{{ route('budgets.updateMonth', $budget->id) }}" class="space-y-4">
+                @csrf
+                <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m-01') }}" />
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Budgeted Amount</label>
+                    <input type="number" step="0.01" name="budgeted_amount" value="{{ old('budgeted_amount', $monthRecord->budgeted_amount) }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700">Realized Amount</label>
+                    <input type="number" step="0.01" name="realized_amount" value="{{ old('realized_amount', $monthRecord->realized_amount) }}"
+                           class="mt-1 block w-full rounded-md border-gray-300 shadow-sm" required />
+                </div>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded">
+                    Save Month
+                </button>
+            </form>
         </div>
     </body>
 </html>

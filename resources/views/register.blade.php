@@ -12,8 +12,11 @@
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
-        <div class="w-full lg:max-w-md max-w-[335px]">
-            <h1 class="text-2xl font-semibold mb-6">Register to {{ config('app.name', 'Laravel') }}</h1>
+        <div class="w-full lg:max-w-md max-w-[335px] space-y-8">
+            <div class="flex justify-between items-start">
+                <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
+                <h1 class="text-2xl font-semibold text-center flex-1">Register to {{ config('app.name', 'Laravel') }}</h1>
+            </div>
 
             <form method="POST" action="{{ route('register') }}" class="space-y-4">
                 @csrf

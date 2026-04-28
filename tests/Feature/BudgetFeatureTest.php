@@ -13,8 +13,7 @@ class BudgetFeatureTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function total_amount_is_correctly_calculated_on_detail_page()
+    public function test_total_amount_is_correctly_calculated_on_detail_page()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -45,8 +44,7 @@ class BudgetFeatureTest extends TestCase
         $response->assertSee('$1,100.00');
     }
 
-    /** @test */
-    public function total_amount_is_correctly_calculated_on_list_page()
+    public function test_total_amount_is_correctly_calculated_on_list_page()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -68,8 +66,7 @@ class BudgetFeatureTest extends TestCase
         $response->assertSee('$2,200.00');
     }
 
-    /** @test */
-    public function total_amount_shows_correct_color_based_on_sign()
+    public function test_total_amount_shows_correct_color_based_on_sign()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -99,8 +96,7 @@ class BudgetFeatureTest extends TestCase
         $response->assertSee('text-red-600');
     }
 
-    /** @test */
-    public function deleting_a_budget_cascades_to_month_records()
+    public function test_deleting_a_budget_cascades_to_month_records()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -123,8 +119,7 @@ class BudgetFeatureTest extends TestCase
         $this->assertDatabaseMissing('budget_months', ['budget_id' => $budget->id]);
     }
 
-    /** @test */
-    public function default_month_selection_behaviour()
+    public function test_default_month_selection_behaviour()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -136,7 +131,7 @@ class BudgetFeatureTest extends TestCase
         ]);
         // No month records – should default to start month
         $response = $this->get(route('budgets.show', $budget->id));
-        $response->assertSee('value="2024-01-01"'); // hidden input month field
+        $response->assertSee('value="2024-01-01"', false);
 
         // Add a month record for February
         BudgetMonth::create([
@@ -147,6 +142,6 @@ class BudgetFeatureTest extends TestCase
         ]);
         // Should now default to the latest existing month (Feb)
         $response = $this->get(route('budgets.show', $budget->id));
-        $response->assertSee('value="2024-02-01"');
+        $response->assertSee('value="2024-02-01"', false);
     }
 }

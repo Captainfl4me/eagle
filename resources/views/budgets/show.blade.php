@@ -8,7 +8,8 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex min-h-screen flex-col">
+    @include('partials.header')
         <div class="w-full max-w-md space-y-8">
             <div class="flex justify-between items-start">
                 <a href="{{ route('budgets.index') }}" class="text-sm text-gray-500 hover:text-gray-700">← Back to Budgets</a>
@@ -41,7 +42,7 @@
             <!-- Edit form for the selected month -->
             <form method="POST" action="{{ route('budgets.updateMonth', $budget->id) }}" class="space-y-4">
                 @csrf
-                <input type="hidden" name="month" value="{{ $currentMonth->format('Y-m-01') }}" />
+                <input type="hidden" name="month" value="{{ ($currentMonth ?? $budget->start_month)->toDateString() }}" />
                 <div>
                     <label class="block text-sm font-medium text-gray-700">Budgeted Amount</label>
                     <input type="number" step="0.01" name="budgeted_amount" value="{{ old('budgeted_amount', optional($monthRecord)->budgeted_amount ?? '') }}"

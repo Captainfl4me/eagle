@@ -63,22 +63,26 @@ class BudgetController extends Controller
         if ($request->has('month')) {
             $currentMonth = \Carbon\Carbon::createFromFormat('Y-m', $request->query('month'))->startOfMonth();
         } else {
-            // Find the most recent month (from today back to the budget start) that already has a record.
-            // If none exist, fall back to today.
-            $today = now()->startOfMonth();
-            $existing = $budget->months()->pluck('month')->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m'))->toArray();
-            $cursor = $today->copy();
-            $found = false;
-            while ($cursor->gte($budget->start_month)) {
-                if (in_array($cursor->format('Y-m'), $existing)) {
-                    $currentMonth = $cursor->copy();
-                    $found = true;
-                    break;
-                }
-                $cursor->subMonth();
-            }
-            if (! $found) {
+            // If there are no month records, default to the budget's start month.
+            if ($budget->months()->count() === 0) {
                 $currentMonth = $budget->start_month;
+            } else {
+                // Find the most recent month (from today back to the budget start) that already has a record.
+                $today = now()->startOfMonth();
+                $existing = $budget->months()->pluck('month')->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m'))->toArray();
+                $cursor = $today->copy();
+                $found = false;
+                while ($cursor->gte($budget->start_month)) {
+                    if (in_array($cursor->format('Y-m'), $existing)) {
+                        $currentMonth = $cursor->copy();
+                        $found = true;
+                        break;
+                    }
+                    $cursor->subMonth();
+                }
+                if (! $found) {
+                    $currentMonth = $budget->start_month;
+                }
             }
         }
         // Ensure not before start month

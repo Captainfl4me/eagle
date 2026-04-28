@@ -7,7 +7,8 @@ use App\Http\Controllers\BudgetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('welcome');
+    // Show dashboard for authenticated users, otherwise the welcome page
+    return auth()->check() ? view('dashboard') : view('welcome');
 });
 
 // Authentication routes

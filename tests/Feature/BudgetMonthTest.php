@@ -12,8 +12,7 @@ class BudgetMonthTest extends TestCase
 {
     use RefreshDatabase;
 
-    /** @test */
-    public function start_month_can_be_created()
+    public function test_start_month_can_be_created()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -33,12 +32,11 @@ class BudgetMonthTest extends TestCase
         $response->assertRedirect(route('budgets.show', $budget));
         $this->assertDatabaseHas('budget_months', [
             'budget_id' => $budget->id,
-            'month' => '2024-01-01',
+            'month' => '2024-01-01 00:00:00',
         ]);
     }
 
-    /** @test */
-    public function cannot_create_non_contiguous_month()
+    public function test_cannot_create_non_contiguous_month()
     {
         $user = User::factory()->create();
         $this->actingAs($user);
@@ -63,8 +61,7 @@ class BudgetMonthTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function cannot_create_month_without_amounts()
+    public function test_cannot_create_month_without_amounts()
     {
         $user = User::factory()->create();
         $this->actingAs($user);

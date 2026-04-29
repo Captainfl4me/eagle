@@ -12,25 +12,25 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <body class="bg-background dark:bg-backgroundDark text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full max-w-md space-y-8">
             <div class="flex justify-between items-start">
                 <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
                 <h1 class="text-2xl font-bold text-center flex-1 text-center">Login to {{ config('app.name', 'Laravel') }}</h1>
             </div>
-            
+
             <form method="POST" action="{{ route('login') }}" class="space-y-6">
                 @csrf
 
                 <!-- Username -->
                 <div>
                     <label for="username" class="block text-sm font-medium mb-2">Username</label>
-                    <input 
-                        type="text" 
-                        name="username" 
-                        id="username" 
+                    <input
+                        type="text"
+                        name="username"
+                        id="username"
                         value="{{ old('username') }}"
-                        required 
+                        required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                     @error('username')
@@ -41,11 +41,11 @@
                 <!-- Password -->
                 <div>
                     <label for="password" class="block text-sm font-medium mb-2">Password</label>
-                    <input 
-                        type="password" 
-                        name="password" 
-                        id="password" 
-                        required 
+                    <input
+                        type="password"
+                        name="password"
+                        id="password"
+                        required
                         class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     >
                     @error('password')
@@ -54,17 +54,17 @@
                 </div>
 
                 <!-- Submit -->
-                <button 
-                    type="submit" 
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                <button
+                    type="submit"
+                    class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors"
                 >
                     Sign In
                 </button>
             </form>
 
             <p class="mt-6 text-center text-sm">
-                Don't have an account? 
-                <a href="{{ route('register') }}" class="text-blue-600 hover:underline">Register here</a>
+                Don't have an account?
+                <a href="{{ route('register') }}" class="text-primary hover:underline">Register here</a>
             </p>
         </div>
     </body>

@@ -8,7 +8,7 @@
         <link href="https://fonts.bunny.net/css?family=instrument-sans:400,500,600" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex min-h-screen flex-col">
+    <body class="bg-background dark:bg-backgroundDark text-text flex min-h-screen flex-col">
     @include('partials.header')
         <div class="w-full max-w-md space-y-8">
             <div class="flex justify-between items-start">

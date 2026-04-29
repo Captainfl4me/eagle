@@ -12,7 +12,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-[#FDFDFC] dark:bg-[#0a0a0a] text-[#1b1b18] flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <body class="bg-background dark:bg-backgroundDark text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full lg:max-w-md max-w-[335px] space-y-8">
             <div class="flex justify-between items-start">
                 <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>

@@ -17,4 +17,5 @@
     --color-background-dark: #0a0a0a;
     --color-text: #0E2742;
     --color-text-white: #F7F9FB;
+    --color-alert: #ef4444; /* custom alert color */
 }

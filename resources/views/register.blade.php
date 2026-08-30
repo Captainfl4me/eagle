@@ -32,7 +32,7 @@
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-transparent focus:outline-none focus:border-gray-500 dark:focus:border-gray-400"
                     >
                     @error('username')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-alert text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -46,7 +46,7 @@
                         class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-transparent focus:outline-none focus:border-gray-500 dark:focus:border-gray-400"
                     >
                     @error('password')
-                        <p class="text-red-600 text-sm mt-1">{{ $message }}</p>
+                        <p class="text-alert text-sm mt-1">{{ $message }}</p>
                     @enderror
                 </div>
 

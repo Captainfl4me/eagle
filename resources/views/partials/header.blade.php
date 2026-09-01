@@ -1,8 +1,8 @@
 <header class="flex items-center justify-between bg-gray-800 p-4 text-white w-full self-stretch">
     <!-- Logo and App Name -->
     <div class="flex items-center space-x-2">
-        <!-- Placeholder for logo (to be added later) -->
-        <div class="h-8 w-8 bg-gray-500 rounded"></div>
+        <!-- Logo -->
+        <img src="{{ asset('img/logo.svg') }}" alt="Eagle Budget" class="h-10 w-10 fill-current" />
         <span class="text-xl font-semibold">Eagle Budget</span>
     </div>
     <!-- Navigation (placeholder links) -->

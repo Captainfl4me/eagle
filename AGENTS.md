@@ -5,6 +5,8 @@ Eagle is a Laravel 13 personal budget management web app (single full-stack app,
 Backend: PHP/Laravel + SQLite/MySQL/PostgreSQL. Frontend: Blade templates + Tailwind CSS 4 via Vite.
 Testing: PHPUnit (no Pest). No CI, no pre-commit hooks.
 
+- Feature specification (implemented vs planned): see `SPECS.md`.
+
 ## Developer Commands
 ```bash
 composer setup      # deps, copy .env, key:generate, migrate, npm install, npm run build

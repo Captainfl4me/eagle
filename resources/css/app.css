@@ -9,13 +9,34 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 
-    /* Color palette */
-    --color-primary: #0484CD;
-    --color-primary-text: #ffffff;
-    --color-secondary: #065298;
-    --color-background: #FDFDFC;
-    --color-background-dark: #0a0a0a;
-    --color-text: #0E2742;
-    --color-text-white: #F7F9FB;
-    --color-alert: #ef4444; /* custom alert color */
+    /* Color palette (references theme variables so a media query can flip them) */
+    --color-primary: var(--theme-primary);
+    --color-primary-text: var(--theme-primary-text);
+    --color-secondary: var(--theme-secondary);
+    --color-background: var(--theme-background);
+    --color-background-dark: var(--theme-background-dark);
+    --color-text: var(--theme-text);
+    --color-text-white: var(--theme-text-white);
+    --color-alert: var(--theme-alert);
+}
+
+:root {
+    --theme-primary: #0484CD;
+    --theme-primary-text: #ffffff;
+    --theme-secondary: #065298;
+    --theme-background: #FDFDFC;
+    --theme-background-dark: #0a0a0a;
+    --theme-text: #0E2742;
+    --theme-text-white: #F7F9FB;
+    --theme-alert: #ef4444; /* custom alert color */
+}
+
+/* OS-based (media) theming: flip the palette variables when the OS is dark */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --theme-background: #0a0a0a;
+        --theme-background-dark: #FDFDFC;
+        --theme-text: #F7F9FB;
+        --theme-text-white: #0E2742;
+    }
 }

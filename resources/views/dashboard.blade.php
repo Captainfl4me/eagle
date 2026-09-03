@@ -6,7 +6,7 @@
     <title>{{ config('app.name', 'Laravel') }} - Dashboard</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-background dark:bg-backgroundDark text-text min-h-screen flex flex-col">
+<body class="bg-background text-text min-h-screen flex flex-col">
     @include('partials.header')
     <div class="container mx-auto p-8">
         <h1 class="text-3xl font-bold mb-4">Dashboard</h1>

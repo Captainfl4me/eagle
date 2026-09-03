@@ -2,7 +2,9 @@
     <!-- Logo and App Name -->
     <div class="flex items-center space-x-2">
         <!-- Logo -->
-        <img src="{{ asset('img/logo.svg') }}" alt="Eagle Budget" class="h-10 w-10 fill-current" />
+        <div class="bg-background rounded-lg p-0">
+            <img src="{{ asset('img/logo.svg') }}" alt="Eagle Budget" class="h-10 w-10 fill-current" />
+        </div>
         <span class="text-xl font-semibold">Eagle Budget</span>
     </div>
     <!-- Navigation (placeholder links) -->

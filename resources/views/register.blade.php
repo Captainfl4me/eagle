@@ -11,7 +11,7 @@
 
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="bg-background dark:bg-backgroundDark text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
+    <body class="bg-background text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full lg:max-w-md max-w-[335px] space-y-8">
             <div class="flex justify-between items-start">
                 <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
@@ -63,7 +63,7 @@
 
                 <button
                     type="submit"
-                    class="w-full px-4 py-2 bg-text dark:bg-primaryText text-background dark:text-backgroundDark rounded-sm font-medium hover:opacity-90"
+                    class="w-full px-4 py-2 bg-text dark:bg-primary-text text-background dark:text-background-dark rounded-sm font-medium hover:opacity-90"
                 >
                     Register
                 </button>

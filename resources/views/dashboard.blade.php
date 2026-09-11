@@ -14,18 +14,18 @@
         <h1 class="text-3xl font-bold">Dashboard</h1>
 
         @if (session('status'))
-            <div class="p-3 text-sm bg-gray-100 text-gray-700 rounded">{{ session('status') }}</div>
+            <div class="p-3 text-sm bg-surface-alt text-text rounded">{{ session('status') }}</div>
         @endif
 
         <!-- Envelope-positivity alert banner -->
         @if ($alerts->isNotEmpty())
-            <div class="p-4 text-sm bg-red-50 text-red-700 rounded-lg border border-red-200 space-y-1">
-                <strong class="text-red-600">Alert:</strong>
+            <div class="p-4 text-sm bg-red-50 text-red-700 border border-red-200 rounded-lg space-y-1 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800">
+                <strong>Alert:</strong>
                 <span>The envelope goes negative for the following budget(s). Resolve it by adding a reallocation.</span>
                 <ul class="list-disc list-inside">
                     @foreach ($alerts as $budget)
                         <li>
-                            <a href="{{ route('budgets.show', $budget->id) }}" class="underline hover:text-red-800">{{ $budget->name }}</a>
+                            <a href="{{ route('budgets.show', $budget->id) }}" class="underline hover:opacity-80">{{ $budget->name }}</a>
                             — {{ $budget->negative_months->map(fn($m) => $m->format('F Y'))->implode(', ') }}
                         </li>
                     @endforeach
@@ -34,24 +34,24 @@
         @endif
 
         @if ($budgets->isEmpty())
-            <p class="text-center">You have no budgets yet. <a href="{{ route('budgets.create') }}" class="text-blue-600 hover:underline">Create one</a>.</p>
+            <p class="text-center">You have no budgets yet. <a href="{{ route('budgets.create') }}" class="text-primary hover:underline">Create one</a>.</p>
         @else
             <ul class="space-y-4">
                 @foreach ($budgets as $budget)
-                    <li class="p-4 border rounded-lg bg-white shadow-sm">
+                    <li class="p-4 border border-line rounded-lg bg-surface shadow-sm">
                         <div class="flex justify-between items-center">
-                            <a href="{{ route('budgets.show', $budget->id) }}" class="font-medium text-blue-600 hover:underline">
+                            <a href="{{ route('budgets.show', $budget->id) }}" class="font-medium text-primary hover:underline">
                                 {{ $budget->name }}
                             </a>
-                            <span class="text-sm text-gray-500">{{ $budget->month->format('F Y') }}</span>
+                            <span class="text-sm text-muted">{{ $budget->month->format('F Y') }}</span>
                         </div>
                         <div class="mt-2 flex justify-between items-center text-sm">
                             <span>Envelope:
-                                <strong class="{{ $budget->total < 0 ? 'text-red-600' : 'text-green-600' }}">
+                                <strong class="{{ $budget->total < 0 ? 'text-red-600 dark:text-red-400' : 'text-green-600 dark:text-green-400' }}">
                                     ${{ number_format($budget->total, 2) }}
                                 </strong>
                             </span>
-                            <span class="text-gray-500">
+                            <span class="text-muted">
                                 {{ $budget->net_borrowed >= 0 ? 'Lent' : 'Borrowed' }}
                                 ${{ number_format(abs($budget->net_borrowed), 2) }}
                             </span>

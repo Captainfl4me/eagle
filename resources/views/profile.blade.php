@@ -15,7 +15,7 @@
     <body class="bg-background text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full lg:max-w-md max-w-[335px] space-y-8">
             <div class="flex justify-between items-start">
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
+                <a href="/" class="text-sm text-muted hover:text-text">← Back to Home</a>
                 <h1 class="text-2xl font-semibold text-center flex-1">Profile</h1>
             </div>
             
@@ -26,15 +26,15 @@
                 </div>
             @endif
 
-            <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
+            <div class="bg-surface border border-line rounded-lg shadow-md p-6">
                 <div class="space-y-6">
                     <!-- User Info -->
                     <div class="text-center">
-                        <div class="flex items-center justify-center h-16 w-16 mb-4 rounded-full bg-gray-300 dark:bg-gray-600 text-gray-800 dark:text-gray-200 text-lg font-bold">
+                        <div class="flex items-center justify-center h-16 w-16 mb-4 rounded-full bg-surface-alt text-text text-lg font-bold">
                             {{ strtoupper(substr(Auth::user()->username, 0, 1)) }}
                         </div>
-                        <h2 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{{ Auth::user()->username }}</h2>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Username</p>
+                        <h2 class="text-xl font-semibold text-text">{{ Auth::user()->username }}</h2>
+                        <p class="text-sm text-muted">Username</p>
                     </div>
 
                     <!-- Change Password Form -->
@@ -48,7 +48,7 @@
                                 name="current_password" 
                                 id="current_password" 
                                 required 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             >
                         </div>
 
@@ -59,7 +59,7 @@
                                 name="new_password" 
                                 id="new_password" 
                                 required 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             >
                         </div>
 
@@ -70,14 +70,14 @@
                                 name="new_password_confirmation" 
                                 id="new_password_confirmation" 
                                 required 
-                                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                             >
                         </div>
 
                         <div class="flex items-center justify-between">
                             <button 
                                 type="submit" 
-                                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                                class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors"
                             >
                                 Update Password
                             </button>

@@ -103,6 +103,19 @@ class BudgetController extends Controller
         }
         // Get month record if it exists (do NOT auto‑create)
         $monthRecord = $budget->months()->where('month', $currentMonth)->first();
+
+        // Pre-fill for the budgeted amount: the month's stored value if present,
+        // otherwise the most recent month before it, otherwise 0.
+        if ($monthRecord !== null) {
+            $budgetedDefault = (float) $monthRecord->budgeted_amount;
+        } else {
+            $previousRecord = $budget->months()
+                ->where('month', '<', $currentMonth->toDateString())
+                ->orderBy('month', 'desc')
+                ->first();
+            $budgetedDefault = $previousRecord !== null ? (float) $previousRecord->budgeted_amount : 0.0;
+        }
+
         // Compute total amount up to the selected month (including reallocations)
         $calculator = app(BudgetCalculator::class);
         $totalAmount = $calculator->envelopeAtMonth($budget, $currentMonth);
@@ -129,7 +142,7 @@ class BudgetController extends Controller
             ->values();
 
         return view('budgets.show', compact(
-            'budget', 'months', 'currentMonth', 'monthRecord',
+            'budget', 'months', 'currentMonth', 'monthRecord', 'budgetedDefault',
             'totalAmount', 'negativeMonths',
             'reallocations', 'selectorBudgets'
         ));

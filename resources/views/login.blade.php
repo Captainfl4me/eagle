@@ -15,7 +15,7 @@
     <body class="bg-background text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full max-w-md space-y-8">
             <div class="flex justify-between items-start">
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
+                <a href="/" class="text-sm text-muted hover:text-text">← Back to Home</a>
                 <h1 class="text-2xl font-bold text-center flex-1 text-center">Login to {{ config('app.name', 'Laravel') }}</h1>
             </div>
 
@@ -31,7 +31,7 @@
                         id="username"
                         value="{{ old('username') }}"
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
+                        class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('username')
                         <p class="mt-1 text-sm text-alert">{{ $message }}</p>
@@ -46,7 +46,7 @@
                         name="password"
                         id="password"
                         required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('password')
                         <p class="mt-1 text-sm text-alert">{{ $message }}</p>

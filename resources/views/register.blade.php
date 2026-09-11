@@ -14,7 +14,7 @@
     <body class="bg-background text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full lg:max-w-md max-w-[335px] space-y-8">
             <div class="flex justify-between items-start">
-                <a href="/" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
+                <a href="/" class="text-sm text-muted hover:text-text">← Back to Home</a>
                 <h1 class="text-2xl font-semibold text-center flex-1">Register to {{ config('app.name', 'Laravel') }}</h1>
             </div>
 
@@ -29,7 +29,7 @@
                         id="username"
                         value="{{ old('username') }}"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-transparent focus:outline-none focus:border-gray-500 dark:focus:border-gray-400"
+                        class="w-full px-3 py-2 rounded-md border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('username')
                         <p class="text-alert text-sm mt-1">{{ $message }}</p>
@@ -43,7 +43,7 @@
                         name="password"
                         id="password"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-transparent focus:outline-none focus:border-gray-500 dark:focus:border-gray-400"
+                        class="w-full px-3 py-2 rounded-md border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('password')
                         <p class="text-alert text-sm mt-1">{{ $message }}</p>
@@ -57,13 +57,13 @@
                         name="password_confirmation"
                         id="password_confirmation"
                         required
-                        class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-sm bg-transparent focus:outline-none focus:border-gray-500 dark:focus:border-gray-400"
+                        class="w-full px-3 py-2 rounded-md border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                 </div>
 
                 <button
                     type="submit"
-                    class="w-full px-4 py-2 bg-text dark:bg-primary-text text-background dark:text-background-dark rounded-sm font-medium hover:opacity-90"
+                    class="w-full px-4 py-2 bg-primary text-white rounded-md font-medium hover:bg-secondary transition-colors"
                 >
                     Register
                 </button>

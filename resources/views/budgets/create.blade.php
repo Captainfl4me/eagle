@@ -15,12 +15,12 @@
     <body class="bg-background text-text flex p-6 lg:p-8 items-center lg:justify-center min-h-screen flex-col">
         <div class="w-full max-w-md space-y-8">
             <div class="flex justify-between items-start">
-                <a href="{{ url('/') }}" class="text-sm text-gray-500 hover:text-gray-700">← Back to Home</a>
+                <a href="{{ url('/') }}" class="text-sm text-muted hover:text-text">← Back to Home</a>
                 <h1 class="text-2xl font-bold text-center flex-1 text-center">Create New Budget</h1>
             </div>
             
             @if (session('status'))
-                <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg" role="alert">
+                <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg dark:text-green-300 dark:bg-green-900/30" role="alert">
                     {{ session('status') }}
                 </div>
             @endif
@@ -38,10 +38,10 @@
                         value="{{ old('name') }}"
                         placeholder="e.g., Monthly Groceries"
                         required 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-5 0 focus:border-transparent"
+                        class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('name')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -55,10 +55,10 @@
                         value="{{ old('start_month') }}"
                         placeholder="YYYY-MM"
                         required 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('start_month')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
@@ -74,16 +74,16 @@
                         placeholder="e.g., 500.00"
                         value="{{ old('start_amount') }}"
                         required 
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        class="w-full px-4 py-2 rounded-lg border border-line bg-surface text-text focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
                     @error('start_amount')
-                        <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                        <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
                     @enderror
                 </div>
 
                 <button 
                     type="submit" 
-                    class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
+                    class="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors"
                 >
                     Create Budget
                 </button>

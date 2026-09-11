@@ -32,7 +32,8 @@ Account management: an account page lets users manage their profile and change t
 Budget creation: a page to create a budget with a name, a starting month, and a start amount (initial envelope balance).
 Budget listing: a page listing the user's budgets.
 Budget details: a page showing budget-specific information.
-Update a budget's state for a month: edit the budgeted and realized amounts for the starting month or later (the only way to enter the realized amount, since there is no external connection).
+Update a budget's state for a month: edit the budgeted and realized amounts for the starting month or later (the only way to enter the realized amount, since there is no external connection). The inline “Month details” form on the budget details page covers the former “month details page” backlog item.
+Budgeted amount pre-fill: when the displayed month has no stored record, the form pre-fills the budgeted amount with the most recent previous month's value (always editable); with no previous month it pre-fills 0; a stored value for the month takes precedence.
 Dashboard: a summary of the budget information for the latest month (the tail of the cumulative series) — the running net per budget — plus the envelope-positivity alert banner and the net-borrowed metric per budget.
 Borrowing / reallocation: the user can reallocate money from one budget to another (design in `reallocation_plan.md`):
 - Persisted as a **month-specific reallocation ledger** (`reallocations` table: `recipient_budget_id`, `source_budget_id`, `month`, `amount > 0`). Raw monthly data (`budgeted`/`realized`) is never mutated; metrics are computed, so no desynchronization.
@@ -67,9 +68,7 @@ The net amount borrowed per budget is the aggregate of money borrowed minus mone
 
 These features are designed but not yet coded. They must not be forgotten.
 
-Month details page: a dedicated page to view and edit a specific month's budgeted and realized amounts.
 Budget sharing page: invite other users to view and edit shared budgets. Reallocations currently assume both budgets are owned by the same user; when sharing is added, ensure reallocations only link budgets the user can edit.
-Budgeted amount pre-fill: when editing a month, the UI form should pre-fill the budgeted amount with the previous month's value by default (always editable); the stored value reflects whatever the user enters.
 
 ## Open design questions
 

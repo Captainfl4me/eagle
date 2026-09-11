@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\Budget;
 use App\Models\User;
-use Carbon\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -78,5 +77,70 @@ class BudgetMonthTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors(['budgeted_amount', 'realized_amount']);
+    }
+
+    public function test_budgeted_amount_prefills_from_previous_month()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $budget = Budget::factory()->create([
+            'user_id' => $user->id,
+            'start_month' => '2024-01-01',
+            'start_amount' => 0,
+        ]);
+
+        $this->post(route('budgets.updateMonth', $budget), [
+            'month' => '2024-01-01',
+            'budgeted_amount' => 200,
+            'realized_amount' => 100,
+        ]);
+
+        // February has no record yet: budgeted amount pre-fills with January's value.
+        $response = $this->get(route('budgets.show', ['id' => $budget->id, 'month' => '2024-02']));
+        $response->assertSee('name="budgeted_amount" value="200.00"', false);
+    }
+
+    public function test_budgeted_amount_prefills_zero_without_previous_month()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $budget = Budget::factory()->create([
+            'user_id' => $user->id,
+            'start_month' => '2024-01-01',
+            'start_amount' => 0,
+        ]);
+
+        // Start month with no records at all: pre-fill with 0.
+        $response = $this->get(route('budgets.show', $budget->id));
+        $response->assertSee('name="budgeted_amount" value="0.00"', false);
+    }
+
+    public function test_budgeted_amount_prefill_uses_stored_value_when_month_exists()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $budget = Budget::factory()->create([
+            'user_id' => $user->id,
+            'start_month' => '2024-01-01',
+            'start_amount' => 0,
+        ]);
+
+        $this->post(route('budgets.updateMonth', $budget), [
+            'month' => '2024-01-01',
+            'budgeted_amount' => 200,
+            'realized_amount' => 100,
+        ]);
+        $this->post(route('budgets.updateMonth', $budget), [
+            'month' => '2024-02-01',
+            'budgeted_amount' => 300,
+            'realized_amount' => 250,
+        ]);
+
+        // February exists with its own stored value: show it, not January's.
+        $response = $this->get(route('budgets.show', ['id' => $budget->id, 'month' => '2024-02']));
+        $response->assertSee('name="budgeted_amount" value="300.00"', false);
     }
 }

@@ -10,42 +10,46 @@
     </head>
     <body class="bg-background text-text flex min-h-screen flex-col">
     @include('partials.header')
-        <div class="w-full max-w-md space-y-8">
-            <div class="flex justify-between items-start">
-                <a href="{{ route('budgets.show', $budget->id) }}" class="text-sm text-gray-500 hover:text-gray-700">← Back to {{ $budget->name }}</a>
-                <h1 class="text-2xl font-bold text-center flex-1 text-center">Reallocations</h1>
+        <div class="w-full max-w-lg mx-auto px-4 py-8 space-y-6">
+            <div class="flex justify-between items-start gap-4">
+                <a href="{{ route('budgets.show', $budget->id) }}" class="text-sm text-muted hover:text-text">← Back to {{ $budget->name }}</a>
+                <h1 class="text-2xl font-bold text-center flex-1">Reallocations</h1>
             </div>
 
             @if (session('status'))
-                <div class="p-3 text-sm bg-gray-100 text-gray-700 rounded">{{ session('status') }}</div>
+                <div class="p-3 text-sm bg-surface-alt text-text rounded">{{ session('status') }}</div>
             @endif
 
             @if ($reallocations->isEmpty())
-                <p class="text-center">No reallocations yet.</p>
+                <p class="text-center text-muted">No reallocations yet.</p>
             @else
                 <ul class="space-y-2">
                     @foreach ($reallocations as $r)
-                        <li class="flex justify-between items-center gap-2 p-3 border rounded-lg">
-                            <div>
+                        <li class="flex flex-wrap justify-between items-center gap-2 p-3 border border-line rounded-lg bg-surface">
+                            <div class="min-w-0">
                                 <p class="font-medium">{{ $r->source->name }} → {{ $r->recipient->name }}</p>
-                                <p class="text-sm text-gray-500">
+                                <p class="text-sm text-muted">
                                     {{ $r->month->format('F Y') }} ·
-                                    {{ $r->recipient_budget_id === $budget->id ? 'In' : 'Out' }}
+                                    <span class="{{ $r->recipient_budget_id === $budget->id ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400' }}">
+                                        {{ $r->recipient_budget_id === $budget->id ? 'In' : 'Out' }}
+                                    </span>
                                     ${{ number_format($r->amount, 2) }}
                                 </p>
                             </div>
-                            <form method="POST" action="{{ route('reallocations.update', [$budget->id, $r->id]) }}" class="flex items-center gap-2">
-                                @csrf
-                                @method('PATCH')
-                                <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount', (float) $r->amount) }}"
-                                       class="rounded-md border-gray-300 shadow-sm text-sm w-24" />
-                                <button type="submit" class="text-sm text-blue-600 hover:underline">Save</button>
-                            </form>
-                            <form method="POST" action="{{ route('reallocations.destroy', [$budget->id, $r->id]) }}" onsubmit="return confirm('Delete this reallocation?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="text-sm text-red-600 hover:underline">Delete</button>
-                            </form>
+                            <div class="flex items-center gap-3">
+                                <form method="POST" action="{{ route('reallocations.update', [$budget->id, $r->id]) }}" class="flex items-center gap-2">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="number" step="0.01" min="0.01" name="amount" value="{{ old('amount', (float) $r->amount) }}"
+                                           class="rounded-md border border-line bg-surface text-text shadow-sm text-sm w-24" />
+                                    <button type="submit" class="text-sm text-primary hover:underline">Save</button>
+                                </form>
+                                <form method="POST" action="{{ route('reallocations.destroy', [$budget->id, $r->id]) }}" onsubmit="return confirm('Delete this reallocation?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-sm text-red-600 dark:text-red-400 hover:underline">Delete</button>
+                                </form>
+                            </div>
                         </li>
                     @endforeach
                 </ul>

@@ -18,9 +18,16 @@
     --color-text: var(--theme-text);
     --color-text-white: var(--theme-text-white);
     --color-alert: var(--theme-alert);
+
+    /* Surfaces, borders and muted text (also flipped by the dark media query) */
+    --color-surface: var(--theme-surface);
+    --color-surface-alt: var(--theme-surface-alt);
+    --color-muted: var(--theme-muted);
+    --color-line: var(--theme-line);
 }
 
 :root {
+    color-scheme: light;
     --theme-primary: #0484CD;
     --theme-primary-text: #ffffff;
     --theme-secondary: #065298;
@@ -29,14 +36,23 @@
     --theme-text: #0E2742;
     --theme-text-white: #F7F9FB;
     --theme-alert: #ef4444; /* custom alert color */
+    --theme-surface: #ffffff;      /* cards, inputs */
+    --theme-surface-alt: #f3f4f6;  /* subtle backgrounds (status banners, hovers) */
+    --theme-muted: #6b7280;        /* secondary text */
+    --theme-line: #d1d5db;         /* borders */
 }
 
 /* OS-based (media) theming: flip the palette variables when the OS is dark */
 @media (prefers-color-scheme: dark) {
     :root {
+        color-scheme: dark;
         --theme-background: #0a0a0a;
         --theme-background-dark: #FDFDFC;
         --theme-text: #F7F9FB;
         --theme-text-white: #0E2742;
+        --theme-surface: #171717;
+        --theme-surface-alt: #262626;
+        --theme-muted: #a3a3a3;
+        --theme-line: #404040;
     }
 }

@@ -34,6 +34,9 @@ npm run build       # compile assets to public/build
 - Ownership: `User hasMany Budget` / `Budget belongsTo User`; `Budget hasMany BudgetMonth`.
 - Months are keyed by `month` (a **date** with no time component); `start_month` is cast to `date`.
 - Envelope model: `start_amount` is the offset when summing monthly cash flow for the total; keep the envelope non-negative (enforce in logic/alerts).
+- Reallocation ledger: `Reallocation` (`recipient_budget_id`, `source_budget_id`, `month`, `amount > 0`, unique per recipient/source/month) records borrowing between budgets of the same user; cumulative from its month onward (in = +, out = −).
+- All money metrics are computed on the fly in `app/Services/BudgetCalculator.php` (envelope/tail total, negative months, net borrowed = Σ out − Σ in, positive ⇒ net lender); nothing is stored.
+- `Reallocation.month` uses the `date:Y-m-d` cast so it is stored without a time component.
 
 ## Frontend
 - Vite inputs: `resources/css/app.css`, `resources/js/app.js`; compiled output goes to `public/build`.

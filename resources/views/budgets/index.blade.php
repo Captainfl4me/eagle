@@ -22,18 +22,13 @@
             @else
                 <ul class="space-y-4">
                     @foreach ($budgets as $budget)
-                        <li class="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-100">
-                            <a href="{{ route('budgets.show', $budget->id) }}" class="font-medium text-blue-600 hover:underline">
-                                {{ $budget->name }}
-                            </a>
-@php
-                                 $total = $budget->start_amount;
-                                 foreach ($budget->months as $m) {
-                                     $total += $m->budgeted_amount - $m->realized_amount;
-                                 }
-                             @endphp
-                             <span class="{{ $total < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format($total, 2) }}</span>
-                        </li>
+                         <li class="flex justify-between items-center p-4 border rounded-lg hover:bg-gray-100">
+                             <a href="{{ route('budgets.show', $budget->id) }}" class="font-medium text-blue-600 hover:underline">
+                                 {{ $budget->name }}
+                             </a>
+                             <span class="{{ $budget->total < 0 ? 'text-red-600' : 'text-green-600' }}">${{ number_format($budget->total, 2) }}</span>
+                             <span class="text-sm text-gray-500">{{ $budget->net_borrowed >= 0 ? 'Lent $' : 'Borrowed $' }}{{ number_format(abs($budget->net_borrowed), 2) }}</span>
+                         </li>
                     @endforeach
                 </ul>
             @endif

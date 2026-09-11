@@ -32,6 +32,18 @@ Account management: an account page lets users manage their profile and change t
 Budget creation: a page to create a budget with a name, a starting month, and a start amount (initial envelope balance).
 Budget listing: a page listing the user's budgets.
 Budget details: a page showing budget-specific information.
+Update a budget's state for a month: edit the budgeted and realized amounts for the starting month or later (the only way to enter the realized amount, since there is no external connection).
+Dashboard: a summary of the budget information for the latest month (the tail of the cumulative series) — the running net per budget — plus the envelope-positivity alert banner and the net-borrowed metric per budget.
+Borrowing / reallocation: the user can reallocate money from one budget to another (design in `reallocation_plan.md`):
+- Persisted as a **month-specific reallocation ledger** (`reallocations` table: `recipient_budget_id`, `source_budget_id`, `month`, `amount > 0`). Raw monthly data (`budgeted`/`realized`) is never mutated; metrics are computed, so no desynchronization.
+- **Month-specific & cumulative**: a reallocation applies to a single month and affects both budgets from that month onward — the running partial sum includes `reallocation_in − reallocation_out`. When creating a reallocation from the budget details page, its month is always the month currently displayed on that page (no month input in the form; a hidden field submits it). The month can never be edited afterwards — correcting a wrong month means deleting the reallocation and recreating it.
+- **Unique**: one row per `(recipient, source, month)`; stacked rows are not allowed (rows are not summed). The store/update actions reject duplicates.
+- **Aggregate net borrowed** is a separate metric: sum of money lent minus money borrowed across all reallocations, shown as a single figure per budget (independent of the per-month envelope); positive ⇒ net lender.
+- Reallocations can be edited (amount only — the month is immutable after creation) or deleted, on the budget details page and the per-budget reallocations list; nets are recomputed dynamically, no triggers needed.
+- The budget details page lists only the reallocations of the **month currently displayed**; the per-budget reallocations list page (`/budgets/{budget}/reallocations`) shows all months.
+- Reallocation selector on the budget details page lists **all** other budgets sorted by current net descending (negatives/zero not hidden) so the user can choose the source. Any budget can be a source; borrowing is **not** restricted to budgets with a positive net.
+- Source and recipient must both be owned by the authenticated user (sharing not yet implemented); self-reallocation is rejected.
+Envelope-positivity alert: an alert banner is displayed on the dashboard and on the budget details page when the running total of a budget dips below zero for any month; it clears once the user resolves the conflict with a reallocation. A dip below zero means a budget has not been properly represented (in real life budgets are always positive): it signals that a reallocation was performed but not yet reported by the user.
 Login and register pages.
 
 ## Requirements — money domain
@@ -55,19 +67,10 @@ The net amount borrowed per budget is the aggregate of money borrowed minus mone
 
 These features are designed but not yet coded. They must not be forgotten.
 
-Update a budget's state for a month: edit the budgeted and realized amounts for the starting month or later (the only way to enter the realized amount, since there is no external connection).
 Month details page: a dedicated page to view and edit a specific month's budgeted and realized amounts.
-Budget sharing page: invite other users to view and edit shared budgets.
-Dashboard: a summary of the budget information for the latest month (the tail of the cumulative series) — most importantly the running net per budget — and the alerts.
-Budgeted amount (target): store the per-month budgeted amount; when editing a month, the UI form pre-fills it with the previous month's value by default, always editable.
-Borrowing / reallocation: allow the user to reallocate money from one budget to another. Design finalized (see `reallocation_plan.md`):
-- Persisted as a **month-specific reallocation ledger** (`reallocations` table: `recipient_budget_id`, `source_budget_id`, `month`, `amount > 0`). Raw monthly data (`budgeted`/`realized`) is never mutated; metrics are computed, so no desynchronization.
-- **Month-specific & cumulative**: a reallocation applies to a single month and affects both budgets from that month onward — the running partial sum includes `reallocation_in − reallocation_out`.
-- **Aggregate net borrowed** is a separate metric: sum of money borrowed minus money lent across all reallocations, shown as a single figure per budget (independent of the per-month envelope).
-- Reallocations can be edited or deleted; nets are recomputed dynamically, no triggers needed.
-- Reallocation selector lists **all** other budgets sorted by current net (negatives/zero not hidden) so the user can choose the source. Any budget can be a source; borrowing is **not** restricted to budgets with a positive net.
-Envelope-positivity alert: display an alert banner on the dashboard when the running total of any budget dips below zero for any month, and require the user to resolve it before it clears. A dip below zero means a budget has not been properly represented (in real life budgets are always positive): it signals that a reallocation was performed but not yet reported by the user.
+Budget sharing page: invite other users to view and edit shared budgets. Reallocations currently assume both budgets are owned by the same user; when sharing is added, ensure reallocations only link budgets the user can edit.
+Budgeted amount pre-fill: when editing a month, the UI form should pre-fill the budgeted amount with the previous month's value by default (always editable); the stored value reflects whatever the user enters.
 
 ## Open design questions
 
-- Reallocations: one row per `(recipient, source, month)`, or allow multiple stacked rows that are summed? **Decided: unique — one row per `(recipient, source, month)`; stacked rows are not allowed (rows are not summed).** See `reallocation_plan.md` §2.
+_None at this time._ (Reallocation month alignment is resolved: the create form always uses the month currently displayed on the budget details page, which the controller clamps to the budget's start month or later.)

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Budget extends Model
 {
@@ -14,6 +15,22 @@ class Budget extends Model
     public function months()
     {
         return $this->hasMany(BudgetMonth::class);
+    }
+
+    /**
+     * Get the reallocations made into this budget.
+     */
+    public function reallocationsIn(): HasMany
+    {
+        return $this->hasMany(Reallocation::class, 'recipient_budget_id');
+    }
+
+    /**
+     * Get the reallocations taken from this budget.
+     */
+    public function reallocationsOut(): HasMany
+    {
+        return $this->hasMany(Reallocation::class, 'source_budget_id');
     }
 
     use HasFactory;

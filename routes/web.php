@@ -1,14 +1,16 @@
 <?php
 
+use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\RegisterController;
-use App\Http\Controllers\BudgetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     // Show dashboard for authenticated users, otherwise the welcome page
-    return auth()->check() ? view('dashboard') : view('welcome');
+    return auth()->check() ? app(DashboardController::class)->index() : view('welcome');
 });
 
 // Authentication routes
@@ -33,4 +35,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
     Route::post('/budgets/{id}/month', [BudgetController::class, 'updateMonth'])->name('budgets.updateMonth');
     Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
+
+    // Reallocation routes (protected by auth)
+    Route::get('/budgets/{budget}/reallocations', [ReallocationController::class, 'index'])->name('reallocations.index');
+    Route::post('/budgets/{budget}/reallocations', [ReallocationController::class, 'store'])->name('reallocations.store');
+    Route::patch('/budgets/{budget}/reallocations/{reallocation}', [ReallocationController::class, 'update'])->name('reallocations.update');
+    Route::delete('/budgets/{budget}/reallocations/{reallocation}', [ReallocationController::class, 'destroy'])->name('reallocations.destroy');
 });

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Budget;
+use App\Models\Reallocation;
+use App\Services\BudgetCalculator;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,7 +31,7 @@ class BudgetController extends Controller
         ]);
 
         // Convert month to a full date (first day of the month)
-        $startMonth = $request->input('start_month') . '-01';
+        $startMonth = $request->input('start_month').'-01';
 
         Budget::create([
             'user_id' => Auth::id(),
@@ -46,7 +49,16 @@ class BudgetController extends Controller
      */
     public function index()
     {
-        $budgets = Budget::where('user_id', Auth::id())->orderBy('created_at', 'desc')->with('months')->get();
+        $calculator = app(BudgetCalculator::class);
+        $budgets = Budget::where('user_id', Auth::id())->orderBy('created_at', 'desc')->get()
+            ->map(function (Budget $budget) use ($calculator) {
+                $latest = $budget->months()->pluck('month')->max() ?? $budget->start_month;
+                $budget->total = $calculator->tailTotal($budget, \max(now(), $latest));
+                $budget->net_borrowed = $calculator->netBorrowed($budget);
+
+                return $budget;
+            });
+
         return view('budgets.index', compact('budgets'));
     }
 
@@ -61,7 +73,7 @@ class BudgetController extends Controller
 
         // Determine the current displayed month
         if ($request->has('month')) {
-            $currentMonth = \Carbon\Carbon::createFromFormat('Y-m', $request->query('month'))->startOfMonth();
+            $currentMonth = Carbon::createFromFormat('Y-m', $request->query('month'))->startOfMonth();
         } else {
             // If there are no month records, default to the budget's start month.
             if ($budget->months()->count() === 0) {
@@ -69,7 +81,7 @@ class BudgetController extends Controller
             } else {
                 // Find the most recent month (from today back to the budget start) that already has a record.
                 $today = now()->startOfMonth();
-                $existing = $budget->months()->pluck('month')->map(fn($d) => \Carbon\Carbon::parse($d)->format('Y-m'))->toArray();
+                $existing = $budget->months()->pluck('month')->map(fn ($d) => Carbon::parse($d)->format('Y-m'))->toArray();
                 $cursor = $today->copy();
                 $found = false;
                 while ($cursor->gte($budget->start_month)) {
@@ -91,15 +103,36 @@ class BudgetController extends Controller
         }
         // Get month record if it exists (do NOT auto‑create)
         $monthRecord = $budget->months()->where('month', $currentMonth)->first();
-        // Compute total amount up to the selected month
-        $totalAmount = $budget->start_amount;
-        foreach ($months as $m) {
-            if ($m->month->lte($currentMonth)) {
-                $totalAmount += $m->budgeted_amount - $m->realized_amount;
-            }
-        }
+        // Compute total amount up to the selected month (including reallocations)
+        $calculator = app(BudgetCalculator::class);
+        $totalAmount = $calculator->envelopeAtMonth($budget, $currentMonth);
+        $negativeMonths = $calculator->negativeMonths($budget);
 
-        return view('budgets.show', compact('budget', 'months', 'currentMonth', 'monthRecord', 'totalAmount'));
+        // Only reallocations for the currently displayed month.
+        $reallocations = Reallocation::where(function ($q) use ($budget) {
+            $q->where('recipient_budget_id', $budget->id)
+                ->orWhere('source_budget_id', $budget->id);
+        })
+            ->where('month', $currentMonth->copy()->startOfMonth()->toDateString())
+            ->with(['recipient', 'source'])
+            ->orderBy('month', 'asc')
+            ->get();
+
+        // Selector: all other budgets of the user with their current net at the
+        // selected month, sorted by net descending (negatives/zero not hidden).
+        $selectorBudgets = Budget::where('user_id', Auth::id())->where('id', '!=', $budget->id)
+            ->get()
+            ->each(function (Budget $sb) use ($calculator, $currentMonth) {
+                $sb->current_net = $calculator->tailTotal($sb, $currentMonth);
+            })
+            ->sortByDesc('current_net')
+            ->values();
+
+        return view('budgets.show', compact(
+            'budget', 'months', 'currentMonth', 'monthRecord',
+            'totalAmount', 'negativeMonths',
+            'reallocations', 'selectorBudgets'
+        ));
     }
 
     /**
@@ -113,7 +146,7 @@ class BudgetController extends Controller
             'budgeted_amount' => ['required', 'numeric', 'min:0'],
             'realized_amount' => ['required', 'numeric', 'min:0'],
         ]);
-        $month = \Carbon\Carbon::parse($request->input('month'))->startOfMonth();
+        $month = Carbon::parse($request->input('month'))->startOfMonth();
         // Enforce contiguous months: if this is not the start month, the previous month must already exist.
         if ($month->gt($budget->start_month)) {
             $prevMonth = $month->copy()->subMonth();
@@ -130,6 +163,7 @@ class BudgetController extends Controller
             'budgeted_amount' => $request->input('budgeted_amount'),
             'realized_amount' => $request->input('realized_amount'),
         ]);
+
         return redirect()->route('budgets.show', $budget->id)->with('status', 'Month updated.');
     }
 
@@ -141,8 +175,7 @@ class BudgetController extends Controller
         $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
         $budget->months()->delete();
         $budget->delete();
+
         return redirect()->route('budgets.index')->with('status', 'Budget deleted successfully.');
     }
 }
-
-

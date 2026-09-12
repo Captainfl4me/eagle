@@ -12,7 +12,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}   # Captainfl4me/eagle
 
 jobs:
   docker:
@@ -43,7 +42,10 @@ jobs:
         id: meta
         run: |
           set -euo pipefail
-          BASE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+          # GITHUB_REPOSITORY may contain uppercase owner/repo (e.g. Captainfl4me/eagle);
+          # Docker/OCI registry repository names must be lowercase.
+          REPO_LOWER="${GITHUB_REPOSITORY,,}"
+          BASE="${{ env.REGISTRY }}/$REPO_LOWER"
 
           # Semver tag (e.g. v1.2.3) → version + major.v.minor aliases; else SHA.
           if [ "${{ github.ref_type }}" = "tag" ]; then

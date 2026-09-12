@@ -1,0 +1,33 @@
+# VCS
+.git
+.gitignore
+
+# Dependencies (rebuilt inside the image)
+vendor
+node_modules
+database/database.sqlite
+database/*.sqlite
+
+# Build output
+public/build
+public/hot
+_ide_helper.php
+
+# Environment / secrets
+.env
+.env.backup
+.env.production
+auth.json
+
+# Local tools & caching
+.phpunit.result.cache
+.phpunit.cache
+.storage/** 
+storage/*.key
+storage/logs/*.log
+storage/pail
+
+# Editor / OS noise
+.idea
+.vscode
+.DS_Store

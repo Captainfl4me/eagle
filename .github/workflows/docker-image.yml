@@ -1,0 +1,77 @@
+name: Build & Push Docker image to GHCR
+
+# Build the multi-stage Docker image and publish it to the GitHub Container
+# Registry (ghcr.io) so the app can be run from a server with just a pull,
+# without cloning the repository.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}   # Captainfl4me/eagle
+
+jobs:
+  docker:
+    name: Build & push image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Compute image tags
+        id: meta
+        run: |
+          set -euo pipefail
+          BASE="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}"
+
+          # Semver tag (e.g. v1.2.3) → version + major.v.minor aliases; else SHA.
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+            TAGS="$BASE:$VERSION"
+            MAJOR="${VERSION%%.*}"
+            MINOR="${VERSION%.*}"
+            TAGS="$TAGS,$BASE:$MAJOR,$BASE:$MINOR"
+          else
+            TAGS="$BASE:sha-${GITHUB_SHA::12}"
+          fi
+
+          # 'latest' is published on the main branch (and tags).
+          if [ "${GITHUB_REF_NAME}" = "main" ] || [ "${{ github.ref_type }}" = "tag" ]; then
+            TAGS="$TAGS,$BASE:latest"
+          fi
+
+          echo "tags=$TAGS" >> "$GITHUB_OUTPUT"
+          echo "::notice::Publishing tags: $TAGS"
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./Dockerfile
+          push: true
+          platforms: linux/amd64
+          tags: ${{ steps.meta.outputs.tags }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: false

@@ -21,6 +21,37 @@ npm run build       # compile assets to public/build
 
 SQLite is the default database. For MySQL/PostgreSQL, set the credentials in `.env`.
 
+## Docker
+
+A prebuilt image is published to the GitHub Container Registry
+(`ghcr.io/captainfl4me/eagle`) via a GitHub Action on every push to `main` and on
+`v*` tags. Run it without cloning the repo:
+
+```bash
+# Pull the latest release / main build
+docker run -d --name eagle -p 80:8080 \
+  -e APP_URL=http://your-host \
+  -v eagle-data:/data \
+  ghcr.io/captainfl4me/eagle:latest
+```
+
+- The container serves the app on port **8080** internally (map it to any host port).
+- SQLite data is stored in **`/data`** (`.env` default `DB_DATABASE=/data/eagle.sqlite`);
+  mount a volume there (e.g. `-v eagle-data:/data`) to keep your budgets across runs.
+- On first boot the entrypoint generates an `APP_KEY`, creates the SQLite database and
+  runs the migrations automatically. Restarting the container re-runs migrations
+  idempotently and keeps existing data.
+- Override config via `-e` at run time: `APP_NAME`, `APP_URL`, `APP_ENV`, `APP_DEBUG`,
+  `DB_CONNECTION`/`DB_HOST`/`DB_PASSWORD` (MySQL/PostgreSQL), `APP_PORT`, …
+
+### Local build & run
+
+```bash
+docker build -t eagle .
+docker run -d --name eagle -p 80:8080 -v eagle-data:/data \
+  -e APP_URL=http://localhost:80 eagle
+```
+
 ## Running & Testing
 
 ```bash

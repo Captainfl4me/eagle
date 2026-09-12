@@ -36,6 +36,27 @@
         @if ($budgets->isEmpty())
             <p class="text-center">You have no budgets yet. <a href="{{ route('budgets.create') }}" class="text-primary hover:underline">Create one</a>.</p>
         @else
+            <!-- Charts: current envelope allocation (pie) + last month cash flow (bars) -->
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                <section class="p-4 border border-line rounded-lg bg-surface shadow-sm min-w-0">
+                    <h2 class="text-lg font-semibold mb-2">Envelope allocation</h2>
+                    <p class="text-sm text-muted mb-3">Each budget&rsquo;s share of your current envelope total.</p>
+                    {{-- Chart.js fills its parent; an explicit height wrapper prevents the
+                         responsive re-size loop that would otherwise let the chart grow
+                         unbounded (the canvas is sized inline, overriding Tailwind classes). --}}
+                    <div class="relative h-64">
+                        <canvas id="pie-chart" role="img" aria-label="Envelope allocation across budgets" class="w-full" data-labels='@json($pie['labels'])' data-values='@json($pie['values'])'></canvas>
+                    </div>
+                </section>
+                <section class="p-4 border border-line rounded-lg bg-surface shadow-sm min-w-0">
+                    <h2 class="text-lg font-semibold mb-2">Cash flow &middot; {{ $cashflow['month'] }}</h2>
+                    <p class="text-sm text-muted mb-3">Budgeted vs realized for the latest month.</p>
+                    <div class="relative h-64">
+                        <canvas id="cashflow-chart" role="img" aria-label="Budgeted versus realized for the latest month" class="w-full" data-labels='@json($cashflow['labels'])' data-budgeted='@json($cashflow['budgeted'])' data-realized='@json($cashflow['realized'])'></canvas>
+                    </div>
+                </section>
+            </div>
+
             <ul class="space-y-4">
                 @foreach ($budgets as $budget)
                     <li class="p-4 border border-line rounded-lg bg-surface shadow-sm">

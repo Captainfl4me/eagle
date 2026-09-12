@@ -16,6 +16,25 @@ class BudgetRoutesTest extends TestCase
         $response->assertRedirect(route('login'));
     }
 
+    public function test_guest_sees_welcome_page_at_root()
+    {
+        $response = $this->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Hello to Eagle');
+    }
+
+    public function test_authenticated_user_sees_dashboard_at_root()
+    {
+        $user = User::create([
+            'username' => 'testuser',
+            'password' => bcrypt('password123'),
+        ]);
+
+        $response = $this->actingAs($user)->get('/');
+        $response->assertStatus(200);
+        $response->assertSee('Dashboard');
+    }
+
     public function test_budget_show_requires_authentication()
     {
         // Create a budget for a user

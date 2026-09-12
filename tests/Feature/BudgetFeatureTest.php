@@ -144,4 +144,23 @@ class BudgetFeatureTest extends TestCase
         $response = $this->get(route('budgets.show', $budget->id));
         $response->assertSee('value="2024-02-01"', false);
     }
+
+    public function test_month_is_clamped_to_start_month_when_requested_earlier()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $budget = Budget::factory()->create([
+            'user_id' => $user->id,
+            'start_month' => '2024-01-01',
+            'start_amount' => 1000,
+        ]);
+
+        // Request a month before the budget's start month.
+        $response = $this->get(route('budgets.show', ['id' => $budget->id, 'month' => '2023-11']));
+        $response->assertStatus(200);
+        // The displayed month (submitted hidden field) is clamped to the start month.
+        $response->assertSee('value="2024-01-01"', false);
+        $response->assertDontSee('value="2023-11-01"', false);
+    }
 }

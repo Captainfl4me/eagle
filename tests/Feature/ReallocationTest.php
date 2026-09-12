@@ -136,6 +136,165 @@ class ReallocationTest extends TestCase
         $response->assertRedirectBack()->assertSessionHasErrors();
     }
 
+    public function test_duplicate_reallocation_is_rejected()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $recipient = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+        $source = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 500]);
+
+        // First reallocation for (recipient, source, month) succeeds.
+        $this->post(route('reallocations.store', $recipient->id), [
+            'source_budget_id' => $source->id,
+            'month' => '2024-02',
+            'amount' => 250,
+        ])->assertRedirect(route('budgets.show', $recipient->id));
+
+        // A second stack for the same (recipient, source, month) is rejected.
+        $response = $this->post(route('reallocations.store', $recipient->id), [
+            'source_budget_id' => $source->id,
+            'month' => '2024-02',
+            'amount' => 100,
+        ]);
+        $response->assertRedirectBack()->assertSessionHasErrors(['amount']);
+
+        // Only the original row remains (rows are not summed or stacked).
+        $this->assertDatabaseMissing('reallocations', [
+            'recipient_budget_id' => $recipient->id,
+            'source_budget_id' => $source->id,
+            'month' => '2024-02-01',
+            'amount' => 100,
+        ]);
+    }
+
+    public function test_duplicate_allowed_different_same_unit_month()
+    {
+        // A different (recipient, source, month) is not a duplicate, even for the same source/destination pair.
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $recipient = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+        $source = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 500]);
+
+        $this->post(route('reallocations.store', $recipient->id), [
+            'source_budget_id' => $source->id,
+            'month' => '2024-02',
+            'amount' => 250,
+        ])->assertRedirect(route('budgets.show', $recipient->id));
+
+        // Same pair, different month, is allowed.
+        $this->post(route('reallocations.store', $recipient->id), [
+            'source_budget_id' => $source->id,
+            'month' => '2024-03',
+            'amount' => 100,
+        ])->assertRedirect(route('budgets.show', $recipient->id));
+
+        $this->assertDatabaseHas('reallocations', [
+            'recipient_budget_id' => $recipient->id,
+            'source_budget_id' => $source->id,
+            'month' => '2024-02-01',
+        ]);
+        $this->assertDatabaseHas('reallocations', [
+            'recipient_budget_id' => $recipient->id,
+            'source_budget_id' => $source->id,
+            'month' => '2024-03-01',
+        ]);
+    }
+
+    public function test_reallocations_list_page_shows_all_months()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $recipient = Budget::factory()->create(['user_id' => $user->id, 'name' => 'Recipient', 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+        $source = Budget::factory()->create(['user_id' => $user->id, 'name' => 'Source', 'start_month' => '2024-01-01', 'start_amount' => 500]);
+        Reallocation::create([
+            'recipient_budget_id' => $recipient->id,
+            'source_budget_id' => $source->id,
+            'month' => '2024-02-01',
+            'amount' => 250,
+        ]);
+        Reallocation::create([
+            'recipient_budget_id' => $source->id,
+            'source_budget_id' => $recipient->id,
+            'month' => '2024-04-01',
+            'amount' => 50,
+        ]);
+
+        // The dedicated list page shows reallocations across ALL months.
+        $response = $this->get(route('reallocations.index', $recipient->id));
+        $response->assertStatus(200);
+        $response->assertSee('Source → Recipient');
+        $response->assertSee('Recipient → Source');
+        $response->assertSee('February');
+        $response->assertSee('April');
+    }
+
+    public function test_update_rejects_reallocation_without_access_to_it()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        // Three budgets owned by the same user; the reallocation links only A and B.
+        $budgetA = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+        $budgetB = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 500]);
+        $budgetC = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 300]);
+        $reallocation = Reallocation::create([
+            'recipient_budget_id' => $budgetA->id,
+            'source_budget_id' => $budgetB->id,
+            'month' => '2024-02-01',
+            'amount' => 100,
+        ]);
+
+        // Editing via a budget that the reallocation does NOT involve is forbidden.
+        $response = $this->patch(route('reallocations.update', [$budgetC->id, $reallocation->id]), [
+            'amount' => 200,
+        ]);
+        $response->assertStatus(403);
+
+        // The record was left untouched.
+        $this->assertDatabaseHas('reallocations', ['id' => $reallocation->id, 'amount' => 100]);
+    }
+
+    public function test_destroy_rejects_reallocation_without_access_to_it()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $budgetA = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+        $budgetB = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 500]);
+        $budgetC = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 300]);
+        $reallocation = Reallocation::create([
+            'recipient_budget_id' => $budgetA->id,
+            'source_budget_id' => $budgetB->id,
+            'month' => '2024-02-01',
+            'amount' => 100,
+        ]);
+
+        $response = $this->delete(route('reallocations.destroy', [$budgetC->id, $reallocation->id]));
+        $response->assertStatus(403);
+
+        // The record still exists.
+        $this->assertDatabaseHas('reallocations', ['id' => $reallocation->id]);
+    }
+
+    public function test_selector_excludes_the_current_budget()
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $recipient = Budget::factory()->create(['user_id' => $user->id, 'name' => 'Recipient Budget', 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+        Budget::factory()->create(['user_id' => $user->id, 'name' => 'Another Budget', 'start_month' => '2024-01-01', 'start_amount' => 500]);
+
+        $response = $this->get(route('budgets.show', $recipient->id));
+        $response->assertStatus(200);
+        // The current budget must NOT appear as an option in the source selector
+        // (but its name still appears as the page heading and recipient field).
+        $response->assertDontSee('Recipient Budget — net', false);
+        $response->assertSee('Another Budget — net', false);
+    }
+
     public function test_cannot_reallocate_from_another_users_budget()
     {
         $user = User::factory()->create();

@@ -9,7 +9,11 @@ services:
     environment:
       - DB_DATABASE=/data/eagle.sqlite
       - APP_ENV=production
-      - APP_URL=http://localhost
+      # Replace with your own public URL (scheme included). It is used for
+      # mail, queued jobs and console URL generation. Behind an HTTPS reverse
+      # proxy, asset URLs are handled by the trusted-proxy middleware
+      # (see bootstrap/app.php), which honors X-Forwarded-Proto.
+      - APP_URL=https://eagle.example.com
       - CACHE_STORE=file
       - SESSION_DRIVER=file
       - QUEUE_CONNECTION=sync

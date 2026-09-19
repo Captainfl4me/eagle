@@ -1,0 +1,20 @@
+# docker-compose.yml
+version: '3.8'
+services:
+  eagle:
+    build: .
+    image: ghcr.io/captainfl4me/eagle
+    container_name: eagle
+    restart: unless-stopped
+    environment:
+      - DB_DATABASE=/data/eagle.sqlite
+      - APP_ENV=production
+      - APP_URL=http://localhost
+      - CACHE_STORE=file
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=sync
+      - MAIL_MAILER=log
+    volumes:
+      - ./data:/data
+    ports:
+      - '8080:8080'

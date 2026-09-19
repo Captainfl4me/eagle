@@ -52,6 +52,51 @@ docker run -d --name eagle -p 80:8080 -v eagle-data:/data \
   -e APP_URL=http://localhost:80 eagle
 ```
 
+### Docker Compose
+
+A `docker-compose.yml` is provided so the app can be run with a persistent SQLite volume and port mapping:
+
+```yaml
+# docker-compose.yml
+docker-compose -f docker-compose.yml up --build
+```
+
+```yaml
+# docker-compose.yml
+version: '3.8'
+services:
+  eagle:
+    build: .
+    image: ghcr.io/captainfl4me/eagle
+    container_name: eagle
+    restart: unless-stopped
+    environment:
+      - DB_DATABASE=/data/eagle.sqlite
+      - APP_ENV=production
+      - APP_URL=http://localhost
+      - CACHE_STORE=file
+      - SESSION_DRIVER=file
+      - QUEUE_CONNECTION=sync
+      - MAIL_MAILER=log
+    volumes:
+      - ./data:/data
+    ports:
+      - '8080:8080'
+```
+
+Run it:
+
+```bash
+docker-compose -f docker-compose.yml up -d
+docker-compose -f docker-compose.yml logs -f
+```
+
+To build the image locally instead of pulling `ghcr.io/captainfl4me/eagle`, remove the `image:` line and run:
+
+```bash
+docker-compose -f docker-compose.yml build
+```
+
 ## Running & Testing
 
 ```bash

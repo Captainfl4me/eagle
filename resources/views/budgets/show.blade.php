@@ -10,7 +10,46 @@
     </head>
     <body class="bg-background text-text flex min-h-screen flex-col">
     @include('partials.header')
-        <div class="w-full max-w-lg mx-auto px-4 py-8 space-y-6">
+        <div class="w-full max-w-5xl mx-auto px-4 py-8 flex flex-col gap-6 lg:flex-row lg:items-start">
+            <!-- Advanced settings (left column) -->
+            <aside class="w-full lg:w-80 shrink-0">
+                <div class="p-4 border border-line rounded-lg bg-surface shadow-sm">
+                    <h2 class="text-lg font-semibold mb-4">Advanced settings</h2>
+                    <form method="POST" action="{{ route('budgets.updateMonthsRange', $budget->id) }}" class="space-y-4">
+                        @csrf
+                        <div>
+                            <label for="from_month" class="block text-sm font-medium">From month</label>
+                            <input type="month" name="from_month" id="from_month" value="{{ old('from_month', $budget->start_month->format('Y-m')) }}" min="{{ $budget->start_month->format('Y-m') }}" required
+                                   class="mt-1 block w-full rounded-md border border-line bg-surface text-text shadow-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                            @error('from_month')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="to_month" class="block text-sm font-medium">To month</label>
+                            <input type="month" name="to_month" id="to_month" value="{{ old('to_month', $currentMonth->format('Y-m')) }}" min="{{ $budget->start_month->format('Y-m') }}" required
+                                   class="mt-1 block w-full rounded-md border border-line bg-surface text-text shadow-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                            @error('to_month')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label for="range_budgeted_amount" class="block text-sm font-medium">Budgeted amount</label>
+                            <input type="number" step="0.01" min="0" name="budgeted_amount" id="range_budgeted_amount" value="{{ old('budgeted_amount') }}" required
+                                   class="mt-1 block w-full rounded-md border border-line bg-surface text-text shadow-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                            @error('budgeted_amount')
+                                <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <p class="text-sm text-muted">Sets the budgeted amount on every month of the range; realized amounts are left unchanged.</p>
+                        <button type="submit" class="w-full bg-primary hover:bg-secondary text-white font-bold py-2 px-4 rounded transition-colors">
+                            Apply to month range
+                        </button>
+                    </form>
+                </div>
+            </aside>
+            <!-- Main column -->
+            <div class="flex-1 min-w-0 space-y-6">
             <div class="flex justify-between items-start gap-4">
                 <a href="{{ route('budgets.index') }}" class="text-sm text-muted hover:text-text">← Back to Budgets</a>
                 <h1 class="text-2xl font-bold text-center flex-1">{{ $budget->name }}</h1>
@@ -156,6 +195,7 @@
                     Delete Budget
                 </button>
             </form>
+            </div>
         </div>
     </body>
 </html>

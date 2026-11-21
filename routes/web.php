@@ -34,6 +34,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/budgets', [BudgetController::class, 'index'])->name('budgets.index');
     Route::get('/budgets/{id}', [BudgetController::class, 'show'])->name('budgets.show');
     Route::post('/budgets/{id}/month', [BudgetController::class, 'updateMonth'])->name('budgets.updateMonth');
+    Route::post('/budgets/{id}/months-range', [BudgetController::class, 'updateMonthsRange'])->name('budgets.updateMonthsRange');
     Route::delete('/budgets/{id}', [BudgetController::class, 'destroy'])->name('budgets.destroy');
 
     // Reallocation routes (protected by auth)

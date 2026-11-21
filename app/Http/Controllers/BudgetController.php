@@ -6,6 +6,7 @@ use App\Models\Budget;
 use App\Models\Reallocation;
 use App\Services\BudgetCalculator;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -178,6 +179,49 @@ class BudgetController extends Controller
         ]);
 
         return redirect()->route('budgets.show', $budget->id)->with('status', 'Month updated.');
+    }
+
+    /**
+     * Update the budgeted amount for a whole range of months.
+     */
+    public function updateMonthsRange(Request $request, $id)
+    {
+        $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
+        $request->validate([
+            'from_month' => ['required', 'date_format:Y-m'],
+            'to_month' => ['required', 'date_format:Y-m', 'after_or_equal:from_month'],
+            'budgeted_amount' => ['required', 'numeric', 'min:0'],
+        ]);
+
+        $from = Carbon::createFromFormat('Y-m', $request->input('from_month'))->startOfMonth();
+        $to = Carbon::createFromFormat('Y-m', $request->input('to_month'))->startOfMonth();
+
+        if ($from->lt($budget->start_month)) {
+            return redirect()->back()->withErrors(['from_month' => 'From month cannot be before the budget start month ('.$budget->start_month->format('Y-m').').']);
+        }
+
+        // Enforce contiguous months: if the range does not start at the start month,
+        // the month right before the range must already exist.
+        if ($from->gt($budget->start_month)) {
+            $prevMonth = $from->copy()->subMonth();
+            $prevExists = $budget->months()->where('month', $prevMonth)->exists();
+            if (! $prevExists) {
+                return redirect()->back()->withErrors(['from_month' => "Previous month {$prevMonth->format('Y-m')} must be created first."]);
+            }
+        }
+
+        $count = 0;
+        foreach (CarbonPeriod::create($from, '1 month', $to) as $month) {
+            $budgetMonth = $budget->months()->firstOrCreate([
+                'month' => $month->copy()->startOfMonth(),
+            ]);
+            $budgetMonth->budgeted_amount = $request->input('budgeted_amount');
+            $budgetMonth->save();
+            $count++;
+        }
+
+        return redirect()->route('budgets.show', ['id' => $budget->id, 'month' => $to->format('Y-m')])
+            ->with('status', "Budgeted amount set for {$count} month(s).");
     }
 
     /**

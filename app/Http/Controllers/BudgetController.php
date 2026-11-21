@@ -71,9 +71,10 @@ class BudgetController extends Controller
         // Load months for this budget ordered by month
         $months = $budget->months()->orderBy('month', 'asc')->get();
 
-        // Determine the current displayed month
-        if ($request->has('month')) {
-            $currentMonth = Carbon::createFromFormat('Y-m', $request->query('month'))->startOfMonth();
+        // Determine the current displayed month (ignore malformed month params)
+        $monthParam = $request->query('month');
+        if (is_string($monthParam) && preg_match('/^\d{4}-(0[1-9]|1[0-2])$/', $monthParam)) {
+            $currentMonth = Carbon::createFromFormat('Y-m', $monthParam)->startOfMonth();
         } else {
             // If there are no month records, default to the budget's start month.
             if ($budget->months()->count() === 0) {

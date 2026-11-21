@@ -20,7 +20,11 @@ class BudgetRoutesTest extends TestCase
     {
         $response = $this->get('/');
         $response->assertStatus(200);
-        $response->assertSee('Hello to Eagle');
+        $response->assertSee('Take control of your money with');
+        $response->assertSee('Get started');
+        $response->assertSee('Dashboard preview');
+        $response->assertSee('Monthly tracking');
+        $response->assertSee('Reallocations');
     }
 
     public function test_authenticated_user_sees_dashboard_at_root()

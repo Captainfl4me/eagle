@@ -6,7 +6,26 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\RegisterController;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+
+// Rate limiters for the authentication endpoints (brute-force protection).
+RateLimiter::for('login', function (Request $request) {
+    // Key on the submitted username + client IP so an attacker cannot lock out
+    // other accounts by spraying passwords, and so brute force against one
+    // account does not open the door from another identity.
+    return [
+        Limit::perMinute(5)->by('login:'.strtolower(trim((string) $request->input('username'))).'|'.$request->ip()),
+    ];
+});
+
+RateLimiter::for('register', function (Request $request) {
+    return [
+        Limit::perMinute(10)->by('register:'.$request->ip()),
+    ];
+});
 
 Route::get('/', function () {
     // Show dashboard for authenticated users, otherwise the welcome page
@@ -15,12 +34,11 @@ Route::get('/', function () {
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'create'])->name('login');
-Route::post('/login', [LoginController::class, 'store']);
-Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
 
 // Registration routes
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
-Route::post('/register', [RegisterController::class, 'store']);
+Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:register');
 
 // Profile routes (protected by auth middleware)
 Route::middleware(['auth'])->group(function () {

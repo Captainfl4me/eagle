@@ -6,26 +6,12 @@ use App\Http\Controllers\LoginController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\RegisterController;
-use Illuminate\Cache\RateLimiting\Limit;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
 
-// Rate limiters for the authentication endpoints (brute-force protection).
-RateLimiter::for('login', function (Request $request) {
-    // Key on the submitted username + client IP so an attacker cannot lock out
-    // other accounts by spraying passwords, and so brute force against one
-    // account does not open the door from another identity.
-    return [
-        Limit::perMinute(5)->by('login:'.strtolower(trim((string) $request->input('username'))).'|'.$request->ip()),
-    ];
-});
-
-RateLimiter::for('register', function (Request $request) {
-    return [
-        Limit::perMinute(10)->by('register:'.$request->ip()),
-    ];
-});
+// NOTE: the RateLimiter::for('login'/'register') definitions live in
+// AppServiceProvider::boot() — with `php artisan route:cache` (used in the
+// production image) routes/web.php is not loaded, so defining them here
+// would leave the named limiters undefined and throttle:login/register dead.
 
 Route::get('/', function () {
     // Show dashboard for authenticated users, otherwise the welcome page

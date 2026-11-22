@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\RateLimiter;
 use Tests\TestCase;
 
 class AuthRateLimitTest extends TestCase
@@ -97,5 +98,25 @@ class AuthRateLimitTest extends TestCase
         $response->assertStatus(302);
         $response->assertSessionHasErrors('password');
         $this->assertDatabaseMissing('users', ['username' => 'shortpw']);
+    }
+
+    public function test_login_with_array_username_does_not_crash(): void
+    {
+        // username[]=x makes input('username') an array; the limiter key must
+        // not blow up on it (throttle middleware runs before validation).
+        $response = $this->post('/login', [
+            'username' => ['x'],
+            'password' => 'whatever123',
+        ]);
+
+        $this->assertContains($response->status(), [302, 422]);
+    }
+
+    public function test_named_rate_limiters_are_registered(): void
+    {
+        // With route caching the routes file is not loaded; the limiters must
+        // still be defined (they live in AppServiceProvider::boot).
+        $this->assertNotNull(RateLimiter::limiter('login'));
+        $this->assertNotNull(RateLimiter::limiter('register'));
     }
 }

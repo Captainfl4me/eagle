@@ -69,6 +69,18 @@ RUN mkdir -p storage/framework/{cache,sessions,views} storage/logs bootstrap/cac
     && chmod -R ug+rw storage bootstrap/cache
 
 # Default configuration overridable at run time (see README "Docker" section).
+#
+# SESSION_SECURE_COOKIE / SESSION_ENCRYPT default to true: the session cookie
+# is only sent over https and the session payload is encrypted at rest.
+# Override SESSION_SECURE_COOKIE=false if you intentionally serve the app
+# over plain http (discouraged).
+#
+# TRUSTED_PROXIES: set to the IP/CIDR list of your reverse proxy (comma
+# separated, or "*") so X-Forwarded-Proto/Host are honored when terminating
+# TLS in front of the container. Unset (default) trusts no proxy headers.
+#
+# Set APP_URL to your public https:// URL when serving over https: in
+# production, Laravel then forces https for all generated URLs.
 ENV APP_NAME=Eagle \
     APP_ENV=production \
     APP_DEBUG=false \
@@ -76,6 +88,8 @@ ENV APP_NAME=Eagle \
     DB_CONNECTION=sqlite \
     DB_DATABASE=/data/eagle.sqlite \
     SESSION_DRIVER=file \
+    SESSION_SECURE_COOKIE=true \
+    SESSION_ENCRYPT=true \
     CACHE_STORE=file \
     QUEUE_CONNECTION=sync \
     MAIL_MAILER=log

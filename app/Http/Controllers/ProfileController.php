@@ -12,7 +12,7 @@ class ProfileController extends Controller
     public function show()
     {
         return view('profile', [
-            'user' => Auth::user()
+            'user' => Auth::user(),
         ]);
     }
 
@@ -26,7 +26,7 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         // Check if current password is correct
-        if (!Hash::check($request->current_password, $user->password)) {
+        if (! Hash::check($request->current_password, $user->password)) {
             throw ValidationException::withMessages([
                 'current_password' => 'The current password is incorrect.',
             ]);
@@ -37,9 +37,13 @@ class ProfileController extends Controller
             'password' => Hash::make($request->new_password),
         ]);
 
-        // Invalidate all other sessions for security (optional)
-        // $request->session()->invalidate();
-        // $request->session()->regenerateToken();
+        // Invalidate all other browser sessions for this user. The
+        // AuthenticateSession middleware (see bootstrap/app.php) refuses any
+        // session whose recorded password hash no longer matches the user's
+        // current password, so sessions opened before the change (possibly
+        // stolen ones) are logged out while the current session is refreshed
+        // transparently at the end of this request.
+        Auth::logoutOtherDevices($request->new_password);
 
         return redirect()->route('profile')->with('status', 'Password updated successfully!');
     }
@@ -49,6 +53,7 @@ class ProfileController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/');
     }
 }

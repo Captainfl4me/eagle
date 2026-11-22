@@ -97,6 +97,40 @@ To build the image locally instead of pulling `ghcr.io/captainfl4me/eagle`, remo
 docker-compose -f docker-compose.yml build
 ```
 
+### Security & production notes
+
+- The container runs the app through `php artisan serve` (PHP's built-in web
+  server). It is fine for this single-user personal app, especially behind an
+  HTTPS reverse proxy with TLS (e.g. Traefik), but it is not a hardened
+  production web server. For a multi-user or internet-exposed deployment,
+  prefer running the app through Nginx/FPM (or Caddy/FrankenPHP) instead.
+- **Pin a stable `APP_KEY`.** By default the entrypoint generates a fresh
+  `APP_KEY` on first boot when none is provided. That key encrypts session
+  cookies, so regenerating it on every new container invalidates all existing
+  sessions. Generate one key (`docker run --rm ghcr.io/captainfl4me/eagle php
+  artisan key:generate --show`) and pass it explicitly, e.g.
+  `-e APP_KEY=base64:...` or via a Docker/Compose secret:
+
+  ```bash
+  docker run -d --name eagle -p 80:8080 \
+    -e APP_URL=https://eagle.example.com \
+    -e APP_KEY=base64:... \
+    -v eagle-data:/data \
+    ghcr.io/captainfl4me/eagle:latest
+  ```
+
+- Secrets never end up in the image: the repo's `.dockerignore` excludes
+  `.env*` and the local SQLite file, so make sure you configure them via
+  `-e`/secrets at run time only.
+- When serving over HTTPS behind a reverse proxy, set
+  `-e SESSION_SECURE_COOKIE=true` (or a corresponding env var) so browsers
+  never send the session cookie over plain HTTP. The trusted-proxy middleware
+  already honors `X-Forwarded-Proto`.
+- The `SecurityHeaders` middleware (`app/Http/Middleware/SecurityHeaders.php`,
+  registered globally in `bootstrap/app.php`) adds defensive HTTP headers (CSP,
+  `X-Frame-Options`, `X-Content-Type-Options`, `Referrer-Policy`,
+  `Permissions-Policy`) to every response.
+
 ## Running & Testing
 
 ```bash

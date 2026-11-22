@@ -78,4 +78,19 @@ class InputAbuseBoundaryTest extends TestCase
         $second->assertSessionHasErrors('amount');
         $this->assertEquals(1, Reallocation::count());
     }
+
+    public function test_garbage_to_month_returns_validation_error_not_500()
+    {
+        $user = User::factory()->create();
+        $budget = Budget::factory()->create(['user_id' => $user->id, 'start_month' => '2024-01-01', 'start_amount' => 1000]);
+
+        $response = $this->actingAs($user)->post(route('budgets.updateMonthsRange', $budget->id), [
+            'from_month' => '2024-01',
+            'to_month' => 'abcd',
+            'budgeted_amount' => 500,
+        ]);
+
+        $response->assertSessionHasErrors('to_month');
+        $this->assertEquals(0, BudgetMonth::where('budget_id', $budget->id)->count());
+    }
 }

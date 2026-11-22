@@ -203,10 +203,14 @@ class BudgetController extends Controller
                 'date_format:Y-m',
                 'after_or_equal:from_month',
                 function (string $attribute, mixed $value, Closure $fail) use ($request) {
+                    // This rule also runs when date_format already failed on either field,
+                    // so bail out on anything that is not a strict YYYY-MM to avoid
+                    // createFromFormat() throwing a 500 on garbage input.
+                    $monthPattern = '/^\d{4}-(0[1-9]|1[0-2])$/';
                     $fromMonth = $request->input('from_month');
                     if (! is_string($fromMonth) || ! is_string($value)
-                        || ! preg_match('/^\d{4}-\d{2}$/', $fromMonth)) {
-                        return; // from_month's own rules already report the problem.
+                        || ! preg_match($monthPattern, $fromMonth) || ! preg_match($monthPattern, $value)) {
+                        return; // the date_format rules already report the problem.
                     }
 
                     $months = (int) Carbon::createFromFormat('Y-m', $fromMonth)->startOfMonth()

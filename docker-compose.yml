@@ -10,9 +10,10 @@ services:
       - DB_DATABASE=/data/eagle.sqlite
       - APP_ENV=production
       # Replace with your own public URL (scheme included). It is used for
-      # mail, queued jobs and console URL generation. Behind an HTTPS reverse
-      # proxy, asset URLs are handled by the trusted-proxy middleware
-      # (see bootstrap/app.php), which honors X-Forwarded-Proto.
+      # mail, queued jobs and console URL generation, and (because the scheme
+      # is https) in production all generated URLs are forced to https.
+      # Behind an HTTPS reverse proxy, set TRUSTED_PROXIES to the proxy's
+      # IP/CIDR so X-Forwarded-* headers are honored (see bootstrap/app.php).
       - APP_URL=https://eagle.example.com
       - CACHE_STORE=file
       - SESSION_DRIVER=file

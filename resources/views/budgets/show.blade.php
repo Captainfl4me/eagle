@@ -47,7 +47,12 @@
                 @else
                     <span class="text-xl text-muted">←</span>
                 @endif
-                <span class="font-medium">{{ $currentMonth->format('F Y') }}</span>
+                <form method="GET" action="{{ route('budgets.show', $budget->id) }}" class="flex items-center space-x-2">
+                    <label for="month" class="font-medium">{{ $currentMonth->format('F Y') }}</label>
+                    <input type="month" name="month" id="month" value="{{ $currentMonth->format('Y-m') }}" min="{{ $budget->start_month->format('Y-m') }}"
+                           class="rounded-md border border-line bg-surface text-text shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-primary" />
+                    <button type="submit" class="text-sm text-primary hover:underline">Go</button>
+                </form>
                 <a href="{{ route('budgets.show', ['id' => $budget->id, 'month' => $nextMonth->format('Y-m')]) }}" class="text-xl font-bold hover:text-primary">→</a>
             </div>
 

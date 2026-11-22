@@ -7,11 +7,19 @@ use App\Models\Reallocation;
 use App\Services\BudgetCalculator;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class BudgetController extends Controller
 {
+    /**
+     * Maximum number of months a single range update may span.
+     * Prevents a single request from mass-creating hundreds of thousands of
+     * budget_months rows (e.g. from_month=2024-01, to_month=9999-12).
+     */
+    private const MAX_RANGE_MONTHS = 120;
+
     /**
      * Show the form to create a new budget.
      */
@@ -190,7 +198,28 @@ class BudgetController extends Controller
         $budget = Budget::where('user_id', Auth::id())->findOrFail($id);
         $request->validate([
             'from_month' => ['required', 'date_format:Y-m'],
-            'to_month' => ['required', 'date_format:Y-m', 'after_or_equal:from_month'],
+            'to_month' => [
+                'required',
+                'date_format:Y-m',
+                'after_or_equal:from_month',
+                function (string $attribute, mixed $value, Closure $fail) use ($request) {
+                    // This rule also runs when date_format already failed on either field,
+                    // so bail out on anything that is not a strict YYYY-MM to avoid
+                    // createFromFormat() throwing a 500 on garbage input.
+                    $monthPattern = '/^\d{4}-(0[1-9]|1[0-2])$/';
+                    $fromMonth = $request->input('from_month');
+                    if (! is_string($fromMonth) || ! is_string($value)
+                        || ! preg_match($monthPattern, $fromMonth) || ! preg_match($monthPattern, $value)) {
+                        return; // the date_format rules already report the problem.
+                    }
+
+                    $months = (int) Carbon::createFromFormat('Y-m', $fromMonth)->startOfMonth()
+                        ->diffInMonths(Carbon::createFromFormat('Y-m', $value)->startOfMonth());
+                    if ($months > self::MAX_RANGE_MONTHS) {
+                        $fail('The month range cannot exceed '.self::MAX_RANGE_MONTHS.' months.');
+                    }
+                },
+            ],
             'budgeted_amount' => ['required', 'numeric', 'min:0'],
         ]);
 

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -27,6 +28,9 @@ return Application::configure(basePath: dirname(__DIR__))
         // change, sessions opened before the change no longer match the
         // stored hash and are immediately signed out.
         $middleware->authenticateSessions();
+
+        // Defensive HTTP security headers on every response (CSP, X-Frame-Options, ...).
+        $middleware->append(SecurityHeaders::class);
     })
     ->booted(function (Application $app): void {
         // Behind a TLS-terminating proxy, generated URLs (links, assets,

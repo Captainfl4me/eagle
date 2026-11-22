@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Budget;
 use App\Models\Reallocation;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -65,12 +66,22 @@ class ReallocationController extends Controller
                 ->withInput();
         }
 
-        Reallocation::create([
-            'recipient_budget_id' => $recipient->id,
-            'source_budget_id' => $source->id,
-            'month' => $month,
-            'amount' => $data['amount'],
-        ]);
+        // The unique(recipient, source, month) index is the authoritative guard:
+        // the exists() check above leaves a small race window between two
+        // concurrent requests, so catch the resulting constraint violation and
+        // show the friendly error instead of an HTTP 500.
+        try {
+            Reallocation::create([
+                'recipient_budget_id' => $recipient->id,
+                'source_budget_id' => $source->id,
+                'month' => $month,
+                'amount' => $data['amount'],
+            ]);
+        } catch (UniqueConstraintViolationException) {
+            return redirect()->back()
+                ->withErrors(['amount' => 'A reallocation from this source already exists for that month. Edit it instead.'])
+                ->withInput();
+        }
 
         return redirect()->route('budgets.show', $recipient->id)->with('status', 'Reallocation added.');
     }

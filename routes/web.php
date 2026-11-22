@@ -8,6 +8,11 @@ use App\Http\Controllers\ReallocationController;
 use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 
+// NOTE: the RateLimiter::for('login'/'register') definitions live in
+// AppServiceProvider::boot() — with `php artisan route:cache` (used in the
+// production image) routes/web.php is not loaded, so defining them here
+// would leave the named limiters undefined and throttle:login/register dead.
+
 Route::get('/', function () {
     // Show dashboard for authenticated users, otherwise the welcome page
     return auth()->check() ? app(DashboardController::class)->index() : view('welcome');
@@ -15,12 +20,11 @@ Route::get('/', function () {
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'create'])->name('login');
-Route::post('/login', [LoginController::class, 'store']);
-Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+Route::post('/login', [LoginController::class, 'store'])->middleware('throttle:login');
 
 // Registration routes
 Route::get('/register', [RegisterController::class, 'create'])->name('register');
-Route::post('/register', [RegisterController::class, 'store']);
+Route::post('/register', [RegisterController::class, 'store'])->middleware('throttle:register');
 
 // Profile routes (protected by auth middleware)
 Route::middleware(['auth'])->group(function () {
